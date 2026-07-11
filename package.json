@@ -1,7 +1,7 @@
 {
-  "name": "gemini-premium-platform",
+  "name": "gemini-premium-mobile-platform",
   "version": "1.0.0",
-  "description": "Plateforme IA complète avec Gemini 2.5 Flash",
+  "description": "Plateforme IA complete et responsive avec Gemini 2.5 Flash",
   "main": "server.js",
   "scripts": {
     "start": "node server.js"
@@ -11,4 +11,3 @@
     "express": "^4.19.2"
   }
 }
-
