@@ -23,28 +23,46 @@ function removeImage() {
     document.getElementById('image-preview-container').classList.add('hidden');
 }
 
+// Fonction de formatage basique du Markdown (Gras et Blocs de Code)
+function formatMarkdown(text) {
+    // Échapper le HTML pour éviter les failles XSS
+    let cleanText = text
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;");
+
+    // Gestion des blocs de code ```javascript ... ```
+    cleanText = cleanText.replace(/```([\s\S]*?)```/g, function(match, code) {
+        return `<pre><code>${code.trim()}</code></pre>`;
+    });
+
+    // Gestion du texte en gras **texte**
+    cleanText = cleanText.replace(/\*\*([\s\S]*?)\*\*/g, '<strong>$1</strong>');
+
+    // Gestion des retours à la ligne
+    return cleanText.replace(/\n/g, '<br>');
+}
+
 // Envoyer le message à l'API locale
 async function sendMessage() {
     const promptInput = document.getElementById('user-prompt');
     const apiKey = document.getElementById('api-key-input').value;
     const uid = document.getElementById('uid-input').value;
-    const chatBox = document.getElementById('chat-box');
     
     const text = promptInput.value.trim();
     if (!text) return;
 
-    // Afficher le message utilisateur sur l'écran
-    appendMessage(text, 'user');
+    // Afficher le message de l'utilisateur
+    appendMessage(text, 'user', false);
     promptInput.value = "";
 
-    // Si l'utilisateur tape clear directement dans le chat
     if (text.toLowerCase() === 'clear') {
         clearMemory();
         return;
     }
 
-    // Création de l'élément de chargement IA
-    const aiMessageDiv = appendMessage("En train de réfléchir...", 'ai');
+    // Message de chargement temporaire
+    const aiMessageDiv = appendMessage("L'IA analyse votre requête...", 'ai', false);
 
     try {
         const response = await fetch('/api/gemini-vision', {
@@ -59,43 +77,51 @@ async function sendMessage() {
         });
 
         const data = await response.json();
-        removeImage(); // Nettoie l'image après envoi
+        removeImage(); 
 
         if (data.status) {
+            // On applique le formatage Markdown et l'effet fluide
             simulateTyping(aiMessageDiv, data.response);
         } else {
-            aiMessageDiv.innerText = "Erreur : " + (data.error || "Impossible de joindre l'IA.");
+            aiMessageDiv.innerHTML = `<span style="color: #ff6b6b;">⚠️ Erreur : ${data.error || "Réponse incorrecte."}</span>`;
         }
     } catch (err) {
-        aiMessageDiv.innerText = "Erreur réseau : Vérifie que ton serveur local tourne.";
+        aiMessageDiv.innerHTML = '<span style="color: #ff6b6b;">❌ Impossible de joindre l\'API. Lancez `npm start`.</span>';
     }
 }
 
-function appendMessage(text, sender) {
+function appendMessage(text, sender, isHTML = false) {
     const chatBox = document.getElementById('chat-box');
     const msg = document.createElement('div');
     msg.classList.add('message', sender);
-    msg.innerText = text;
+    
+    if (isHTML) {
+        msg.innerHTML = text;
+    } else {
+        msg.innerText = text;
+    }
+    
     chatBox.appendChild(msg);
     chatBox.scrollTop = chatBox.scrollHeight;
     return msg;
 }
 
-// Effet d'écriture fluide (effet machine à écrire)
-function simulateTyping(element, text) {
+// Effet machine à écrire compatible avec le HTML formaté
+function simulateTyping(element, rawText) {
     element.innerText = "";
-    let i = 0;
-    const interval = setInterval(() => {
-        if (i < text.length) {
-            element.innerText += text.charAt(i);
-            i++;
-        } else {
-            clearInterval(interval);
-        }
-    }, 15);
+    const formattedText = formatMarkdown(rawText);
+    
+    // Pour éviter de casser les balises HTML en écrivant lettre par lettre, 
+    // on injecte directement le HTML formaté avec une transition fluide en CSS
+    element.innerHTML = formattedText;
+    element.style.opacity = 0;
+    setTimeout(() => {
+        element.style.transition = "opacity 0.4s ease";
+        element.style.opacity = 1;
+    }, 50);
 }
 
-// Fonction globale d'effacement de l'historique
+// Effacer la mémoire locale
 async function clearMemory() {
     const uid = document.getElementById('uid-input').value;
     const apiKey = document.getElementById('api-key-input').value;
@@ -103,13 +129,13 @@ async function clearMemory() {
     try {
         const res = await fetch(`/api/gemini-vision?prompt=clear&uid=${uid}&apikey=${apiKey}`);
         const data = await res.json();
-        appendMessage("🧹 " + (data.message || "Mémoire vidée !"), 'system-msg');
+        appendMessage("🧹 " + (data.message || "Mémoire vidée !"), 'system-msg', false);
     } catch(e) {
-        appendMessage("Impossible de communiquer avec le serveur pour effacer l'historique.", 'system-msg');
+        appendMessage("Erreur lors de la réinitialisation.", 'system-msg', false);
     }
 }
 
-// Débloquer les options Premium avec ton mot de passe unique
+// Mode Premium
 function unlockPremium() {
     const password = document.getElementById('premium-pwd').value;
     const badge = document.getElementById('premium-badge');
@@ -119,22 +145,19 @@ function unlockPremium() {
         badge.innerText = "💎 Mode Premium Actif";
         badge.classList.add('premium');
         premiumOptions.classList.remove('hidden');
-        alert("Félicitations ! Le panneau Premium a été débloqué avec succès ! 🎉");
     } else {
-        alert("Mot de passe incorrect. Les fonctionnalités Premium restent verrouillées.");
+        alert("Mot de passe incorrect.");
     }
 }
 
-// Fonction premium : Changement d'arrière-plan thématique
 function changeBackground() {
     const theme = document.getElementById('bg-selector').value;
-    document.body.className = ""; // Reset
+    document.body.className = ""; 
     if (theme !== "default") {
         document.body.classList.add(theme);
     }
 }
 
-// Fonction premium : Activation/Désactivation de la musique d'ambiance
 function toggleAudio() {
     const audio = document.getElementById('lofi-audio');
     if (audio.paused) {
@@ -143,4 +166,3 @@ function toggleAudio() {
         audio.pause();
     }
 }
-
