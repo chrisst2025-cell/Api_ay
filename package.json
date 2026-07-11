@@ -1,0 +1,14 @@
+{
+  "name": "gemini-premium-platform",
+  "version": "1.0.0",
+  "description": "Plateforme IA complète avec Gemini 2.5 Flash",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.19.2"
+  }
+}
+
