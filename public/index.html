@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Premium Workspace - Gemini 2.5</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="app-container">
+        <aside class="sidebar">
+            <div class="logo">✨ Gemini OS</div>
+            
+            <div class="section-title">Configuration</div>
+            <input type="password" id="api-key-input" placeholder="Clé API Gemini">
+            <input type="text" id="uid-input" value="user_local_1" placeholder="Identifiant (UID)">
+            
+            <button class="btn btn-danger" onclick="clearMemory()">🗑️ Effacer la mémoire</button>
+            
+            <hr>
+            
+            <div class="section-title">🔒 Espace Premium</div>
+            <input type="password" id="premium-pwd" placeholder="Mot de passe Premium">
+            <button class="btn btn-premium" onclick="unlockPremium()">Activer le Mode Premium</button>
+            
+            <div id="premium-options" class="hidden">
+                <div class="section-title">🎨 Personnalisation Premium</div>
+                <label>Arrière-plan :</label>
+                <select id="bg-selector" onchange="changeBackground()">
+                    <option value="default">Par défaut</option>
+                    <option value="cyberpunk">Cyberpunk Neon</option>
+                    <option value="space">Espace Profond</option>
+                    <option value="matrix">Matrix Code</option>
+                </select>
+                
+                <div class="section-title">🎵 Ambiance Audio</div>
+                <button class="btn" onclick="toggleAudio()">🎧 Lofi Rain Audio (On/Off)</button>
+            </div>
+        </aside>
+
+        <main class="chat-area">
+            <div class="chat-header">
+                <h2>Gemini 2.5 Flash Hub</h2>
+                <span id="premium-badge" class="badge">Version Gratuite</span>
+            </div>
+            
+            <div class="messages-container" id="chat-box">
+                <div class="message system-msg">Bonjour ! Je suis configuré avec Gemini 2.5 Flash. Posez-moi une question ou importez une image.</div>
+            </div>
+
+            <div id="image-preview-container" class="hidden">
+                <img id="image-preview" src="" alt="Aperçu">
+                <button onclick="removeImage()">❌</button>
+            </div>
+
+            <div class="input-container">
+                <label for="image-input" class="attach-btn">🖼️</label>
+                <input type="file" id="image-input" accept="image/*" style="display:none" onchange="previewFile()">
+                
+                <input type="text" id="user-prompt" placeholder="Écrivez votre message ici... (tapez 'clear' pour réinitialiser)">
+                <button class="send-btn" onclick="sendMessage()">Envoyer</button>
+            </div>
+        </main>
+    </div>
+
+    <audio id="lofi-audio" loop src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3"></audio>
+
+    <script src="app.js"></script>
+</body>
+</html>
+
