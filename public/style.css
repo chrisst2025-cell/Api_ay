@@ -67,4 +67,23 @@ input:focus { border-color: var(--accent-color); }
 
 .hidden { display: none !important; }
 hr { border: 0; border-top: 1px solid #333; margin: 10px 0; }
+/* Style pour les blocs de code générés par l'IA */
+pre {
+    background: #0f141c;
+    border-radius: 6px;
+    padding: 12px;
+    margin: 10px 0;
+    overflow-x: auto;
+    border: 1px solid #2d3748;
+}
+
+code {
+    font-family: 'Courier New', Courier, monospace;
+    font-size: 13px;
+    color: #f8f8f2;
+}
+
+strong {
+    color: var(--accent-color);
+}
 
